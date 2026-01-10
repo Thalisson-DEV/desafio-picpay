@@ -1,0 +1,94 @@
+package com.desafiopicpay.services;
+
+import com.desafiopicpay.domain.user.User;
+import com.desafiopicpay.domain.user.UserType;
+import com.desafiopicpay.dtos.PaginatedUsersResponseDTO;
+import com.desafiopicpay.dtos.UserRequestDTO;
+import com.desafiopicpay.dtos.UserResponseDTO;
+import com.desafiopicpay.exceptions.InvalidOperationException;
+import com.desafiopicpay.mappers.UserMapper;
+import com.desafiopicpay.repositories.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+
+@Service
+@RequiredArgsConstructor
+public class UserService {
+
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
+
+    public void validateTransaction(@Valid User sender, BigDecimal amount) {
+        if (sender.getUserType().equals(UserType.MERCHANT)) {
+            throw new InvalidOperationException("User unauthorized");
+        }
+        if (sender.getBalance().compareTo(amount) < 0) {
+            throw new InvalidOperationException("Insufficient balance");
+        }
+    }
+
+    public UserResponseDTO createUser(UserRequestDTO user) {
+        User newUser = this.userMapper.toUserEntity(user);
+        this.userRepository.save(newUser);
+        return userMapper.toUserResponseDTO(newUser);
+    }
+
+    public UserResponseDTO findUserById(Long id) {
+        User user = this.userRepository.findUserById(id).
+                orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        return userMapper.toUserResponseDTO(user);
+    }
+
+    public UserResponseDTO findUserByDocument(String document) {
+        User user = this.userRepository.findUserByDocument(document).
+                orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        return userMapper.toUserResponseDTO(user);
+    }
+
+    public User findUserEntityById(Long id) {
+        return this.userRepository.findUserById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+    }
+
+    public PaginatedUsersResponseDTO findAllUsersPaginated(Pageable pageable) {
+        Page<@NonNull User> users = this.userRepository.findAll(pageable);
+
+        if (users.isEmpty()) {
+            throw new EntityNotFoundException("Users not found");
+        }
+
+        return userMapper.toPaginatedResponseDTO(users);
+    }
+
+    @Transactional
+    public UserResponseDTO updateUser(Long id, UserRequestDTO user) {
+        User userToUpdate = this.userRepository.findUserById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        userMapper.updateUserFromDTO(user, userToUpdate);
+        return userMapper.toUserResponseDTO(userToUpdate);
+    }
+
+    @Transactional
+    public void deleteUserById(Long id) {
+        if(!this.userRepository.existsById(id)) {
+            throw new EntityNotFoundException("User not found");
+        }
+
+        this.userRepository.deleteById(id);
+    }
+
+    public void saveUser(User user) {
+        this.userRepository.save(user);
+    }
+}
