@@ -1,0 +1,40 @@
+services:
+  app:
+    build: .
+    container_name: picpay-api
+    ports:
+      - "${SERVER_PORT}:8080"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - DB_URL=${DB_URL}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+    networks:
+      - picpay-network
+
+  db:
+    image: postgres:17
+    container_name: picpay-db
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - picpay-network
+
+volumes:
+  postgres_data:
+
+networks:
+  picpay-network:
+    driver: bridge
