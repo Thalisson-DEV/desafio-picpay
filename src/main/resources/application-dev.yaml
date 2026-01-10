@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: desafio-picpay
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: admin
+    password: admin
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+  h2:
+    console:
+      enabled: true
