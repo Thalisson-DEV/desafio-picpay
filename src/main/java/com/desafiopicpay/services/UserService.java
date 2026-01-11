@@ -32,14 +32,7 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
 
-    public void validateTransaction(@Valid User sender, BigDecimal amount) {
-        if (sender.getUserType().equals(UserType.MERCHANT)) {
-            throw new InvalidOperationException("User unauthorized");
-        }
-        if (sender.getBalance().compareTo(amount) < 0) {
-            throw new InvalidOperationException("Insufficient balance");
-        }
-    }
+
 
     @Transactional
     public UserResponseDTO createUser(UserRequestDTO user) {

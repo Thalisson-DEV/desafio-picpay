@@ -36,7 +36,7 @@ public class TransactionService {
         User sender = this.userService.findUserEntityById(transaction.senderId());
         User receiver = this.userService.findUserEntityById(transaction.receiverId());
 
-        userService.validateTransaction(sender, transaction.value());
+        sender.validateTransaction(sender, transaction.value());
 
         boolean isAuthorized = this.authorizeTransaction();
         if (!isAuthorized) {
