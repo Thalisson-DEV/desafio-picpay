@@ -29,6 +29,12 @@ public class TransactionController {
         return ResponseEntity.ok(newTransaction);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<@NonNull TransactionResponseDTO> findTransactionById(@NonNull @PathVariable Long id) {
+        TransactionResponseDTO transaction = transactionService.findTransactionById(id);
+        return ResponseEntity.ok(transaction);
+    }
+
     @GetMapping("/user/{userId}")
     public ResponseEntity<@NonNull PaginatedTransactionsResponseDTO> findAllTransactionsByUserIdPaginated(Pageable pageable, @NonNull @PathVariable Long userId) {
         PaginatedTransactionsResponseDTO transactions = transactionService.findAllTransactionsByUserIdPaginated(pageable, userId);

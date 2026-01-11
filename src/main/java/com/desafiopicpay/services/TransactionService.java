@@ -27,7 +27,7 @@ public class TransactionService {
     private final UserService userService;
     private final TransactionRepository transactionRepository;
     private final TransactionMapper transactionMapper;
-    private final NotificationService notificationService;
+    //private final NotificationService notificationService;
     private final RestTemplate restTemplate;
 
     @Transactional
@@ -77,6 +77,13 @@ public class TransactionService {
         }
 
         return authorizationResponse.getStatusCode().is2xxSuccessful();
+    }
+
+    public TransactionResponseDTO findTransactionById(Long id) {
+        Transaction transaction = this.transactionRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Transaction not found"));
+
+        return transactionMapper.toTransactionResponseDTO(transaction);
     }
 
 }
