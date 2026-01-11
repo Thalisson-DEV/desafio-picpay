@@ -19,11 +19,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
+import com.desafiopicpay.domain.role.Role;
+import com.desafiopicpay.repositories.RoleRepository;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final UserMapper userMapper;
 
     public void validateTransaction(@Valid User sender, BigDecimal amount) {
@@ -35,8 +41,12 @@ public class UserService {
         }
     }
 
+    @Transactional
     public UserResponseDTO createUser(UserRequestDTO user) {
         User newUser = this.userMapper.toUserEntity(user);
+
+        validateUserRoles(newUser);
+
         this.userRepository.save(newUser);
         return userMapper.toUserResponseDTO(newUser);
     }
@@ -76,6 +86,9 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         userMapper.updateUserFromDTO(user, userToUpdate);
+
+        validateUserRoles(userToUpdate);
+
         return userMapper.toUserResponseDTO(userToUpdate);
     }
 
@@ -88,7 +101,18 @@ public class UserService {
         this.userRepository.deleteById(id);
     }
 
+    @Transactional
     public void saveUser(User user) {
         this.userRepository.save(user);
+    }
+
+    private void validateUserRoles(User newUser) {
+        if (newUser.getRoles() != null && !newUser.getRoles().isEmpty()) {
+            Set<Role> managedRoles = newUser.getRoles().stream()
+                    .map(role -> roleRepository.findById(role.getId())
+                            .orElseThrow(() -> new EntityNotFoundException("Role not found with id: " + role.getId())))
+                    .collect(Collectors.toSet());
+            newUser.setRoles(managedRoles);
+        }
     }
 }

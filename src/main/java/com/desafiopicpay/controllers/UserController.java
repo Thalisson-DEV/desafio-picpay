@@ -36,7 +36,7 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping("/{document}")
+    @GetMapping("/document/{document}")
     public ResponseEntity<@NonNull UserResponseDTO> findUserByDocument(@NonNull @PathVariable String document) {
         UserResponseDTO user = userService.findUserByDocument(document);
         return ResponseEntity.ok(user);

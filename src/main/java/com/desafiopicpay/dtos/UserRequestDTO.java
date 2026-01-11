@@ -28,5 +28,6 @@ public record UserRequestDTO(
         String password,
         @NotNull(message = "User type cannot be null")
         UserType userType,
+        @NotNull(message = "Roles cannot be null")
         Set<Role> roles
 ) { }
