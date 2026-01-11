@@ -8,6 +8,7 @@ import lombok.NonNull;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -24,7 +25,7 @@ public class RestExceptionHandler {
                 LocalDateTime.now(),
                 e.getMessage(),
                 "/api/v1/users",
-                status
+                status.value()
         );
 
         return ResponseEntity.badRequest().body(exceptionResponse);
@@ -43,7 +44,7 @@ public class RestExceptionHandler {
                 LocalDateTime.now(),
                 e.getMessage(),
                 "/api/v1/transactions",
-                status
+                status.value()
         );
 
         return ResponseEntity.badRequest().body(exceptionResponse);
@@ -57,10 +58,24 @@ public class RestExceptionHandler {
                 LocalDateTime.now(),
                 e.getMessage(),
                 null,
-                status
+                status.value()
         );
 
         return ResponseEntity.internalServerError().body(exceptionResponse);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<@NonNull ExceptionResponseDTO> handleGeneralException() {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        ExceptionResponseDTO exceptionResponse = new ExceptionResponseDTO(
+                LocalDateTime.now(),
+                "Invalid request parameters.",
+                null,
+                status.value()
+        );
+
+        return ResponseEntity.badRequest().body(exceptionResponse);
     }
 
     @ExceptionHandler(Exception.class)
@@ -71,7 +86,7 @@ public class RestExceptionHandler {
                 LocalDateTime.now(),
                 e.getMessage(),
                 null,
-                status
+                status.value()
         );
 
         return ResponseEntity.internalServerError().body(exceptionResponse);

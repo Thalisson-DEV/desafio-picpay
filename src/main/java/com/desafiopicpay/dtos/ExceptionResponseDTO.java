@@ -8,5 +8,5 @@ public record ExceptionResponseDTO(
         LocalDateTime timestamp,
         String message,
         String instance,
-        HttpStatus status
+        int status
 ) {}
