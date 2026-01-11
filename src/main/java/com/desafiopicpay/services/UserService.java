@@ -1,15 +1,12 @@
 package com.desafiopicpay.services;
 
 import com.desafiopicpay.domain.user.User;
-import com.desafiopicpay.domain.user.UserType;
 import com.desafiopicpay.dtos.PaginatedUsersResponseDTO;
 import com.desafiopicpay.dtos.UserRequestDTO;
 import com.desafiopicpay.dtos.UserResponseDTO;
-import com.desafiopicpay.exceptions.InvalidOperationException;
 import com.desafiopicpay.mappers.UserMapper;
 import com.desafiopicpay.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 
 import com.desafiopicpay.domain.role.Role;
 import com.desafiopicpay.repositories.RoleRepository;
