@@ -2,60 +2,53 @@ package com.desafiopicpay.mappers;
 
 import com.desafiopicpay.domain.transaction.Transaction;
 import com.desafiopicpay.domain.user.User;
-import com.desafiopicpay.domain.user.UserType;
 import com.desafiopicpay.dtos.TransactionRequestDTO;
 import com.desafiopicpay.dtos.TransactionResponseDTO;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 
 import java.math.BigDecimal;
-import java.util.Collections;
+import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class TransactionMapperTest {
 
-    private TransactionMapper transactionMapper;
-
-    @BeforeEach
-    void setUp() {
-        transactionMapper = new TransactionMapperImpl();
-    }
+    private final TransactionMapper mapper = Mappers.getMapper(TransactionMapper.class);
 
     @Test
     @DisplayName("Should map TransactionRequestDTO to Transaction entity")
-    void toTransactionEntity() {
-        TransactionRequestDTO request = new TransactionRequestDTO(new BigDecimal("50.00"), 1L, 2L);
-        User sender = new User(1L, "John", "Doe", "111", "john@test.com", "123", new BigDecimal("100"), UserType.COMMON, Collections.emptySet());
-        User receiver = new User(2L, "Jane", "Doe", "222", "jane@test.com", "456", new BigDecimal("100"), UserType.MERCHANT, Collections.emptySet());
+    void toTransactionEntity_Success() {
+        TransactionRequestDTO dto = new TransactionRequestDTO(new BigDecimal("100.00"), 1L, 2L);
+        User sender = new User(); sender.setId(1L);
+        User receiver = new User(); receiver.setId(2L);
 
-        Transaction transaction = transactionMapper.toTransactionEntity(request, sender, receiver);
+        Transaction entity = mapper.toTransactionEntity(dto, sender, receiver);
 
-        assertNotNull(transaction);
-        assertEquals(request.value(), transaction.getAmount());
-        assertEquals(sender, transaction.getSender());
-        assertEquals(receiver, transaction.getReceiver());
+        assertThat(entity.getAmount()).isEqualByComparingTo("100.00");
+        assertThat(entity.getSender().getId()).isEqualTo(1L);
+        assertThat(entity.getReceiver().getId()).isEqualTo(2L);
+        assertThat(entity.getTimestamp()).isBeforeOrEqualTo(LocalDateTime.now());
     }
 
     @Test
     @DisplayName("Should map Transaction entity to TransactionResponseDTO")
-    void toTransactionDTO() {
-        User sender = new User(1L, "John", "Doe", "111", "john@test.com", "123", new BigDecimal("100"), UserType.COMMON, Collections.emptySet());
-        User receiver = new User(2L, "Jane", "Doe", "222", "jane@test.com", "456", new BigDecimal("100"), UserType.MERCHANT, Collections.emptySet());
-        
-        Transaction transaction = new Transaction();
-        transaction.setId(10L);
-        transaction.setAmount(new BigDecimal("50.00"));
-        transaction.setSender(sender);
-        transaction.setReceiver(receiver);
+    void toTransactionResponseDTO_Success() {
+        Transaction entity = new Transaction();
+        entity.setId(10L);
+        entity.setAmount(new BigDecimal("50.00"));
+        entity.setTimestamp(LocalDateTime.now());
+        User sender = new User(); sender.setId(1L);
+        User receiver = new User(); receiver.setId(2L);
+        entity.setSender(sender);
+        entity.setReceiver(receiver);
 
-        TransactionResponseDTO dto = transactionMapper.toTransactionDTO(transaction);
+        TransactionResponseDTO dto = mapper.toTransactionResponseDTO(entity);
 
-        assertNotNull(dto);
-        assertEquals(transaction.getAmount(), dto.value());
-        assertEquals(sender.getId(), dto.senderId());
-        assertEquals(receiver.getId(), dto.receiverId());
+        assertThat(dto.id()).isEqualTo(10L);
+        assertThat(dto.value()).isEqualByComparingTo("50.00");
+        assertThat(dto.sender().id()).isEqualTo(1L);
+        assertThat(dto.receiver().id()).isEqualTo(2L);
     }
 }

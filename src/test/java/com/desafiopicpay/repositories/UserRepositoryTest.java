@@ -2,7 +2,6 @@ package com.desafiopicpay.repositories;
 
 import com.desafiopicpay.domain.user.User;
 import com.desafiopicpay.domain.user.UserType;
-import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,15 +20,20 @@ class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private EntityManager entityManager;
-
     @Test
     @DisplayName("Should get User successfully from DB")
-    void findUserByDocumentSuccess() {
-        String document = "12345678901";
-        UserRequestDTO data = new UserRequestDTO("John", "Doe", document, new BigDecimal("100"), "test@test.com", "123", UserType.COMMON);
-        this.createUser(data);
+    void findUserByDocument_Success() {
+        String document = "12345678900";
+        User user = new User();
+        user.setDocument(document);
+        user.setFirstName("John");
+        user.setLastName("Doe");
+        user.setEmail("test@test.com");
+        user.setBalance(new BigDecimal("10.0"));
+        user.setUserType(UserType.COMMON);
+        user.setPassword("password");
+        
+        this.userRepository.save(user);
 
         Optional<User> result = this.userRepository.findUserByDocument(document);
 
@@ -39,8 +43,8 @@ class UserRepositoryTest {
 
     @Test
     @DisplayName("Should not get User from DB when user not exists")
-    void findUserByDocumentFail() {
-        String document = "12345678901";
+    void findUserByDocument_Failure() {
+        String document = "12345678900";
 
         Optional<User> result = this.userRepository.findUserByDocument(document);
 
@@ -48,32 +52,43 @@ class UserRepositoryTest {
     }
     
     @Test
-    @DisplayName("Should find User by ID successfully")
-    void findUserByIdSuccess() {
-        String document = "12345678901";
-        UserRequestDTO data = new UserRequestDTO("John", "Doe", document, new BigDecimal("100"), "test@test.com", "123", UserType.COMMON);
-        User createdUser = this.createUser(data);
+    @DisplayName("Should find user by ID")
+    void findUserById_Success() {
+        User user = new User();
+        user.setDocument("11122233344");
+        user.setFirstName("Jane");
+        user.setLastName("Doe");
+        user.setEmail("jane@test.com");
+        user.setBalance(new BigDecimal("10.0"));
+        user.setUserType(UserType.COMMON);
+        user.setPassword("password");
+        
+        User savedUser = this.userRepository.save(user);
 
-        Optional<User> result = this.userRepository.findUserById(createdUser.getId());
+        Optional<User> result = this.userRepository.findUserById(savedUser.getId());
 
         assertThat(result.isPresent()).isTrue();
-        assertThat(result.get().getId()).isEqualTo(createdUser.getId());
+        assertThat(result.get().getId()).isEqualTo(savedUser.getId());
     }
 
-    private User createUser(UserRequestDTO data) {
-        User newUser = new User();
-        newUser.setFirstName(data.firstName());
-        newUser.setLastName(data.lastName());
-        newUser.setDocument(data.document());
-        newUser.setBalance(data.balance());
-        newUser.setEmail(data.email());
-        newUser.setPassword(data.password());
-        newUser.setUserType(data.userType());
+    @Test
+    @DisplayName("Should find user by Email")
+    void findUserByEmail_Success() {
+        String email = "email@test.com";
+        User user = new User();
+        user.setDocument("55566677788");
+        user.setFirstName("Bob");
+        user.setLastName("Builder");
+        user.setEmail(email);
+        user.setBalance(new BigDecimal("10.0"));
+        user.setUserType(UserType.COMMON);
+        user.setPassword("password");
         
-        this.entityManager.persist(newUser);
-        return newUser;
+        this.userRepository.save(user);
+
+        Optional<User> result = this.userRepository.findUserByEmail(email);
+
+        assertThat(result.isPresent()).isTrue();
+        assertThat(result.get().getEmail()).isEqualTo(email);
     }
-    
-    // Helper DTO class for test
-    record UserRequestDTO(String firstName, String lastName, String document, BigDecimal balance, String email, String password, UserType userType) {}
 }
