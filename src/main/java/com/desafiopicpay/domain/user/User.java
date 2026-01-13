@@ -1,12 +1,10 @@
 package com.desafiopicpay.domain.user;
 
 import com.desafiopicpay.domain.role.Role;
-import com.desafiopicpay.dtos.LoginRequestDTO;
 import com.desafiopicpay.exceptions.InvalidOperationException;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 import java.util.Set;
