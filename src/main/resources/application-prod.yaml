@@ -14,3 +14,7 @@ spring:
         format_sql: true
     show-sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+jwt:
+  public-key: classpath:app.pub
+  private-key: classpath:app.key

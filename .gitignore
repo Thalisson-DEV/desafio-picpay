@@ -1,5 +1,7 @@
 GEMINI.md
 .env
+/src/main/resources/app.key
+/src/main/resources/app.pub
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
