@@ -8,6 +8,7 @@ import lombok.NonNull;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -65,7 +66,7 @@ public class RestExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<@NonNull ExceptionResponseDTO> handleGeneralException() {
+    public ResponseEntity<@NonNull ExceptionResponseDTO> handleMethodArgumentNotValidException() {
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
         ExceptionResponseDTO exceptionResponse = new ExceptionResponseDTO(
@@ -76,6 +77,20 @@ public class RestExceptionHandler {
         );
 
         return ResponseEntity.badRequest().body(exceptionResponse);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<@NonNull ExceptionResponseDTO> handleBadCredentialsException(BadCredentialsException e) {
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
+
+        ExceptionResponseDTO exceptionResponse = new ExceptionResponseDTO(
+                LocalDateTime.now(),
+                e.getMessage(),
+                "api/v1/login",
+                status.value()
+        );
+
+        return ResponseEntity.internalServerError().body(exceptionResponse);
     }
 
     @ExceptionHandler(Exception.class)
