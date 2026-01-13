@@ -12,7 +12,7 @@ import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 
-@Mapper(componentModel = "spring", imports = {LocalDateTime.class})
+@Mapper(imports = {LocalDateTime.class})
 public interface TransactionMapper {
 
     @Mapping(target = "id", ignore = true)
