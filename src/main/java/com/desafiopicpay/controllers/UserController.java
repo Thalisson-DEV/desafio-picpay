@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
 
@@ -25,6 +26,7 @@ public class UserController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public ResponseEntity<@NonNull PaginatedUsersResponseDTO> findAllUsersPaginated(Pageable pageable) {
         PaginatedUsersResponseDTO usersPaginated = userService.findAllUsersPaginated(pageable);
         return ResponseEntity.ok(usersPaginated);
@@ -49,6 +51,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public ResponseEntity<@NonNull Void> deleteUserById(@NonNull @PathVariable Long id) {
         userService.deleteUserById(id);
         return ResponseEntity.noContent().build();

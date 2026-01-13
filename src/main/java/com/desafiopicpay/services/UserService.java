@@ -11,6 +11,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,19 +28,21 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
-
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
 
     @Transactional
     public UserResponseDTO createUser(UserRequestDTO user) {
         User newUser = this.userMapper.toUserEntity(user);
 
+        newUser.setPassword(bCryptPasswordEncoder.encode(newUser.getPassword()));
         validateUserRoles(newUser);
 
         this.userRepository.save(newUser);
         return userMapper.toUserResponseDTO(newUser);
     }
 
+    @Transactional(readOnly = true)
     public UserResponseDTO findUserById(Long id) {
         User user = this.userRepository.findUserById(id).
                 orElseThrow(() -> new EntityNotFoundException("User not found"));
@@ -47,6 +50,7 @@ public class UserService {
         return userMapper.toUserResponseDTO(user);
     }
 
+    @Transactional(readOnly = true)
     public UserResponseDTO findUserByDocument(String document) {
         User user = this.userRepository.findUserByDocument(document).
                 orElseThrow(() -> new EntityNotFoundException("User not found"));
@@ -54,11 +58,19 @@ public class UserService {
         return userMapper.toUserResponseDTO(user);
     }
 
+    @Transactional(readOnly = true)
+    public User findUserEntityByEmail(String email) {
+        return this.userRepository.findUserByEmail(email).
+                orElseThrow(() -> new EntityNotFoundException("User not found"));
+    }
+
+    @Transactional(readOnly = true)
     public User findUserEntityById(Long id) {
         return this.userRepository.findUserById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
 
+    @Transactional(readOnly = true)
     public PaginatedUsersResponseDTO findAllUsersPaginated(Pageable pageable) {
         Page<@NonNull User> users = this.userRepository.findAll(pageable);
 
